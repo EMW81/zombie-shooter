@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Zombie Shooter 3D — Nuketown Arena (FPS)</title>
+<title>Zombie Shooter 3D — Nuketown Arena</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: #05070c; font-family: 'Courier New', monospace; color: #fff; user-select: none; -webkit-user-select: none; touch-action: none; }
@@ -14,6 +14,8 @@
   #crosshair::before { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
   #crosshair::after { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
   #crosshair-dot { position: absolute; top: 50%; left: 50%; width: 3px; height: 3px; background: #ef4444; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 4px #ef4444; }
+
+  /* Top HUD */
   #hud-top { position: absolute; top: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 5; }
   #hp-wrap { flex: 1; max-width: 220px; }
   #hp-label { font-size: 10px; color: #ef4444; letter-spacing: 3px; margin-bottom: 4px; text-shadow: 0 0 8px #ef4444; }
@@ -24,15 +26,20 @@
   #wave-lbl { font-size: 12px; color: #fbbf24; letter-spacing: 3px; text-shadow: 0 0 8px #fbbf24; }
   #money-lbl { font-size: 16px; color: #4ade80; font-weight: bold; margin-top: 4px; text-shadow: 0 0 10px #4ade80; }
   #kills-lbl { font-size: 10px; color: #9ca3af; margin-top: 4px; letter-spacing: 2px; }
+
+  /* Bottom HUD */
   #hud-bottom { position: absolute; bottom: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 5; }
   #gun-info { background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(251,191,36,0.3); }
   #gun-name { font-size: 13px; color: #fbbf24; font-weight: bold; letter-spacing: 1px; }
   #gun-hint { font-size: 9px; color: #6b7280; margin-top: 2px; }
+
+  /* On-screen controls (touch / mobile fallback) */
   #controls-wrap { display: flex; gap: 12px; pointer-events: auto; }
   .ctl-btn { background: rgba(74,222,128,0.15); border: 2px solid rgba(74,222,128,0.5); color: #4ade80; padding: 12px 18px; font-family: inherit; font-size: 13px; font-weight: bold; border-radius: 8px; cursor: pointer; letter-spacing: 1px; min-width: 56px; text-align: center; }
   .ctl-btn:active, .ctl-btn.pressed { background: rgba(74,222,128,0.4); border-color: #4ade80; }
   .ctl-btn.shop { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.5); color: #fbbf24; }
   .ctl-btn.shoot { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); color: #ef4444; }
+
   #dpad { position: absolute; bottom: 80px; left: 16px; width: 168px; height: 168px; pointer-events: auto; z-index: 6; }
   .dpad-btn { position: absolute; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.3); color: #fff; font-size: 20px; font-weight: bold; font-family: inherit; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
   .dpad-btn:active, .dpad-btn.pressed { background: rgba(74,222,128,0.4); border-color: #4ade80; color: #4ade80; }
@@ -40,6 +47,8 @@
   #dpad-down { bottom: 0; left: 56px; }
   #dpad-left { left: 0; top: 56px; }
   #dpad-right { right: 0; top: 56px; }
+
+  /* Overlays */
   .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5,7,12,0.95); z-index: 10; gap: 12px; padding: 20px; text-align: center; }
   .overlay.hidden { display: none; }
   .title-big { color: #ef4444; font-size: 28px; font-weight: bold; letter-spacing: 6px; text-shadow: 0 0 18px #ef4444; }
@@ -48,7 +57,11 @@
   .btn-primary { background: #4ade80; color: #000; border: none; padding: 14px 36px; border-radius: 8px; font-family: inherit; font-size: 14px; cursor: pointer; font-weight: bold; letter-spacing: 2px; margin-top: 8px; transition: transform 0.1s; }
   .btn-primary:hover { transform: scale(1.05); }
   .btn-danger { background: #ef4444; color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-family: inherit; font-size: 13px; cursor: pointer; font-weight: bold; letter-spacing: 2px; margin-top: 8px; }
+
+  /* Countdown */
   #countdown-num { font-size: 140px; font-weight: bold; color: #fbbf24; line-height: 1; text-shadow: 0 0 40px #fbbf24, 0 0 80px #ef4444; min-width: 3ch; text-align: center; }
+
+  /* Shop */
   #shop-overlay { justify-content: flex-start; padding-top: 40px; }
   #shop-title { color: #fbbf24; font-size: 20px; font-weight: bold; letter-spacing: 6px; margin-bottom: 6px; text-shadow: 0 0 14px #fbbf24; }
   #shop-money { color: #4ade80; font-size: 16px; margin-bottom: 20px; font-weight: bold; }
@@ -62,14 +75,37 @@
   .gun-card .gun-stat { font-size: 10px; color: #9ca3af; margin-top: 2px; }
   .gun-card .gun-price { font-size: 13px; color: #4ade80; font-weight: bold; margin-top: 8px; }
   .gun-card .gun-status { font-size: 11px; color: #fbbf24; font-weight: bold; letter-spacing: 2px; margin-top: 6px; }
+
   #shop-hint { margin-top: 14px; font-size: 10px; color: #4b5563; }
+
   .game-over-stats { color: #9ca3af; font-size: 12px; line-height: 2.4; margin: 10px 0; }
+
+  /* Non-blocking starting-area HUD banner */
+  #lobby-banner { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 7; pointer-events: none; text-align: center; padding: 14px 28px; background: rgba(5,7,12,0.65); border: 2px solid rgba(251,191,36,0.6); border-radius: 10px; box-shadow: 0 0 30px rgba(251,191,36,0.35); }
+  #lobby-banner.hidden { display: none; }
+  #lobby-banner .lb-title { color: #fbbf24; font-size: 16px; letter-spacing: 4px; font-weight: bold; text-shadow: 0 0 10px #fbbf24; }
+  #lobby-banner .lb-sub { color: #9ca3af; font-size: 10px; letter-spacing: 3px; margin-top: 4px; }
+  #lobby-banner .lb-num { color: #ef4444; font-size: 48px; font-weight: bold; line-height: 1; margin-top: 6px; text-shadow: 0 0 14px #ef4444; }
+
+  /* "Click to look around" prompt when mouse isn't locked */
+  #look-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, 40px); z-index: 6; pointer-events: none; padding: 10px 20px; background: rgba(5,7,12,0.7); border: 1px solid rgba(74,222,128,0.55); border-radius: 6px; color: #4ade80; font-size: 11px; letter-spacing: 3px; font-weight: bold; text-shadow: 0 0 8px #4ade80; animation: pulse 1.2s ease-in-out infinite; }
+  #look-hint.hidden { display: none; }
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 </style>
 </head>
 <body>
+
 <div id="game-root" tabindex="0">
   <canvas id="game-canvas"></canvas>
   <div id="crosshair"><div id="crosshair-dot"></div></div>
+  <div id="lobby-banner" class="hidden">
+    <div class="lb-title">SCAVENGE THE AREA</div>
+    <div class="lb-sub">ENTER BUILDINGS - GRAB LOOT - FIND COINS</div>
+    <div class="lb-num">14</div>
+  </div>
+  <div id="look-hint" class="hidden">CLICK TO LOOK AROUND</div>
+
+  <!-- Top HUD -->
   <div id="hud-top">
     <div id="hp-wrap">
       <div id="hp-label">HEALTH 150/150</div>
@@ -83,6 +119,8 @@
       <div id="kills-lbl">KILLS: 0</div>
     </div>
   </div>
+
+  <!-- Bottom HUD -->
   <div id="hud-bottom">
     <div id="gun-info">
       <div id="gun-name">PISTOL</div>
@@ -95,35 +133,46 @@
       <button class="ctl-btn shoot" id="btn-shoot">SHOOT</button>
     </div>
   </div>
+
+  <!-- On-screen D-pad (mobile/touch) -->
   <div id="dpad">
     <button class="dpad-btn" id="dpad-up">^</button>
     <button class="dpad-btn" id="dpad-down">v</button>
     <button class="dpad-btn" id="dpad-left">&lt;</button>
     <button class="dpad-btn" id="dpad-right">&gt;</button>
   </div>
+
+  <!-- Start Screen -->
   <div class="overlay" id="start-overlay">
     <div class="title-big">ZOMBIE SHOOTER 3D</div>
     <div class="subtitle">NUKETOWN x ARENA - FPS</div>
     <div class="hint-text">
-      FIRST PERSON MODE - click to aim with mouse<br>
+      SURVIVE THE ZOMBIE HORDES<br>
+      14 SECONDS TO EXPLORE - LOOT HOUSES - GRAB COINS<br>
       WASD / Left Stick - Move &nbsp;|&nbsp; Mouse / Right Stick - Look<br>
-      Click / RT - Shoot &nbsp;|&nbsp; [B] / Menu - Shop &nbsp;|&nbsp; [1-5] / LB-RB - Guns<br>
-      [E] / X - Bandage (+28 HP) &nbsp;|&nbsp; [Q] / Y - Medkit (+100 HP)<br>
+      Click / RT - Shoot &nbsp;|&nbsp; [B] / Menu - Shop<br>
+      [E] / X - Bandage &nbsp;|&nbsp; [Q] / Y - Medkit<br>
       ESC to free the mouse
     </div>
     <button class="btn-primary" id="btn-start">START GAME</button>
   </div>
+
+  <!-- Countdown Lobby -->
   <div class="overlay hidden" id="lobby-overlay">
     <div class="title-big">GET READY</div>
     <div id="countdown-num">3</div>
     <div class="subtitle">SURVIVE THE WAVES</div>
   </div>
+
+  <!-- Shop -->
   <div class="overlay hidden" id="shop-overlay">
     <div id="shop-title">GUN SHOP</div>
     <div id="shop-money">$0</div>
     <div id="shop-grid"></div>
     <div id="shop-hint">[B] or [ESC] or Menu Button to close - Click card to buy/equip</div>
   </div>
+
+  <!-- Game Over -->
   <div class="overlay hidden" id="over-overlay">
     <div class="title-big" style="color: #ef4444;">YOU DIED</div>
     <div class="game-over-stats" id="over-stats"></div>
@@ -149,7 +198,7 @@ const CFG = {
     bandage: { amount: 28,  castMs: 700,  dropChance: 0.15, maxStack: 5 },
     medkit:  { amount: 100, castMs: 2000, dropChance: 0.04, maxStack: 3 }
   },
-  WAVE: { baseCount: 6, perWave: 3, spawnDelayMs: 600 },
+  WAVE: { baseCount: 6, perWave: 3, spawnDelayMs: 600, startSeconds: 14 },
   GUNS: [
     { id:'pistol',  name:'PISTOL',       cost:0,    dmg:25,  fireRate:280, spread:0.02, bullets:1, speed:0.9,  pierce:0, color:0xffff00 },
     { id:'shotgun', name:'SHOTGUN',      cost:250,  dmg:18,  fireRate:650, spread:0.20, bullets:6, speed:0.85, pierce:0, color:0xffa500 },
@@ -167,7 +216,7 @@ const state = {
 };
 
 const input = { keys: {}, mouse: { x: 0, y: 0, down: false, dx: 0, dy: 0, locked: false }, gamepad: null, touch: { up:false, down:false, left:false, right:false, shoot:false } };
-const fps = { yaw: 0, pitch: 0, sensitivity: 0.0025, eyeHeight: 2.8 };
+const fps = { yaw: 0, pitch: 0, sensitivity: 0.005, eyeHeight: 2.8 };
 
 // TEXTURES
 const TEX_CACHE = {};
@@ -316,28 +365,123 @@ function buildMap() {
   buildLamp(-SIZE/2 + 18,  SIZE/2 - 4); buildLamp( SIZE/2 - 18,  SIZE/2 - 4);
   buildLamp(-SIZE/2 + 4,  0); buildLamp( SIZE/2 - 4,  0);
   buildSign(0, -SIZE/2 + 3);
+
+  // ATMOSPHERIC DETAILS
+  const bloodSpots = [[-6, -4],[9, -12],[-14, 7],[18, 15],[-22, -20],[5, 22],[25, -6],[-30, 10]];
+  bloodSpots.forEach(([x, z]) => {
+    addBox(x, 0.025, z, 2 + Math.random()*1.5, 0.02, 1.6 + Math.random()*1.2, 0x7f1d1d, { collide: false, emissive: 0x7f1d1d, emissiveIntensity: 0.18, rotY: Math.random() * Math.PI });
+  });
+  for (let i = 0; i < 14; i++) {
+    const x = (Math.random() - 0.5) * SIZE * 0.85;
+    const z = (Math.random() - 0.5) * SIZE * 0.85;
+    addBox(x, 0.035, z, 0.6, 0.02, 0.8, 0xfef3c7, { collide: false, rotY: Math.random() * Math.PI });
+  }
+  [[-4, -26],[12, 30],[-32, 22]].forEach(([x, z]) => {
+    const bt = texMetalBarrel.clone(); bt.needsUpdate = true;
+    bt.wrapS = bt.wrapT = THREE.RepeatWrapping;
+    bt.magFilter = THREE.NearestFilter; bt.minFilter = THREE.NearestFilter;
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 1.8, 10), new THREE.MeshLambertMaterial({ color: 0xffffff, map: bt }));
+    m.position.set(x, 0.7, z); m.rotation.z = Math.PI/2; m.castShadow = true; m.receiveShadow = true; scene.add(m);
+  });
+  [[-9, 0],[22, -3],[-18, -26]].forEach(([x, z]) => {
+    addBox(x, 0.5, z, 1.2, 1.0, 1.2, 0x374151, { rotY: Math.random() * Math.PI, collide: false });
+  });
+  [[-10, 14],[16, -20]].forEach(([x, z]) => {
+    addBox(x, 0.3, z, 1.6, 0.6, 0.8, 0x3f3f46, { collide: false, rotY: Math.random() * Math.PI });
+    addBox(x + 0.3, 0.3, z - 0.9, 0.7, 0.5, 0.7, 0xfef3c7, { collide: false });
+  });
+  for (let i = 0; i < 8; i++) {
+    const x = (Math.random() - 0.5) * SIZE * 0.8;
+    const z = (Math.random() - 0.5) * SIZE * 0.8;
+    addBox(x, 0.15, z, 2.2 + Math.random() * 1.5, 0.2, 0.35, 0xffffff, { tex: texWood, texRepeat: [2,1], collide: false, rotY: Math.random() * Math.PI });
+  }
+  const emLights = [[-20, -20],[20, 20],[-25, 20],[25, -20]];
+  emLights.forEach(([x, z]) => {
+    addBox(x, 7, z, 0.4, 0.4, 0.4, 0xff0000, { emissive: 0xff0000, emissiveIntensity: 0.9, collide: false });
+    const L = new THREE.PointLight(0xff0000, 0.6, 12); L.position.set(x, 7, z); scene.add(L);
+    setInterval(() => { L.intensity = 0.2 + Math.random() * 0.7; }, 180 + Math.random() * 200);
+  });
+  spawnCoin(-24, -14, 50);
+  spawnCoin( 28,  18, 50);
+  spawnCoin(-30,  28, 75);
+  spawnCoin( 30, -28, 75);
+  spawnCoin(  0, -45, 100);
+  spawnCoin(  0,  45, 100);
+  spawnPickup('bandage', -4, -2);
+  spawnPickup('bandage',  4,  2);
 }
 
 function buildHouse(cx, cz, cw, cr, faceSouth) {
   const wallTex = faceSouth ? texConcrete : texBrickYellow;
-  addBox(cx, 3.5, cz, 29, 7, 19, 0xffffff, { tex: wallTex, texRepeat: [6, 2] });
-  const roofGeo = new THREE.BoxGeometry(30, 3.5, 20);
+  const HW = 29, HD = 19, HH = 7;
+  const TH = 0.4;
+  const front = faceSouth ? cz - HD/2 : cz + HD/2;
+  const back  = faceSouth ? cz + HD/2 : cz - HD/2;
+  const dir   = faceSouth ? -1 : 1;
+  const doorW = 3.5;
+
+  addBox(cx, 0.05, cz, HW, 0.1, HD, 0xffffff, { tex: texWood, texRepeat: [8, 6], collide: false });
+  addBox(cx, HH/2, back, HW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [6, 2] });
+  const sideW = (HW - doorW) / 2;
+  addBox(cx - (doorW/2 + sideW/2), HH/2, front, sideW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [3, 2] });
+  addBox(cx + (doorW/2 + sideW/2), HH/2, front, sideW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [3, 2] });
+  addBox(cx, HH - 0.75, front, doorW, 1.5, TH, 0xffffff, { tex: wallTex, texRepeat: [1, 1] });
+  addBox(cx - HW/2, HH/2, cz, TH, HH, HD, 0xffffff, { tex: wallTex, texRepeat: [4, 2] });
+  addBox(cx + HW/2, HH/2, cz, TH, HH, HD, 0xffffff, { tex: wallTex, texRepeat: [4, 2] });
+
+  const roofGeo = new THREE.BoxGeometry(HW + 1, 3.5, HD + 1);
   const rt = texShingle.clone(); rt.needsUpdate = true;
   rt.wrapS = rt.wrapT = THREE.RepeatWrapping;
   rt.magFilter = THREE.NearestFilter; rt.minFilter = THREE.NearestFilter; rt.repeat.set(6, 3);
   const roof = new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: 0xffffff, map: rt }));
-  roof.position.set(cx, 8.8, cz); roof.castShadow = true; roof.receiveShadow = true; scene.add(roof);
-  const porchZ = faceSouth ? cz - 12 : cz + 12;
+  roof.position.set(cx, HH + 1.75, cz); roof.castShadow = true; roof.receiveShadow = true; scene.add(roof);
+
+  addBox(cx, HH - 0.05, cz, HW - 1, 0.1, HD - 1, 0x1a1a1a, { collide: false });
+
+  const porchZ = cz + dir * (HD/2 + 3);
   addBox(cx, 0.5, porchZ, 26, 1.0, 6, 0xffffff, { tex: texWood, texRepeat: [6, 2] });
-  addBox(cx - 11, 2.8, porchZ + (faceSouth ? 1.5 : -1.5), 0.8, 4.6, 0.8, 0xe5e7eb);
-  addBox(cx + 11, 2.8, porchZ + (faceSouth ? 1.5 : -1.5), 0.8, 4.6, 0.8, 0xe5e7eb);
-  addBox(cx, 2.5, porchZ + (faceSouth ? -2 : 2) - (faceSouth ? -0.5 : 0.5), 2.6, 5.0, 0.3, 0x450a0a, { emissive: 0xff0000, emissiveIntensity: 0.2, collide: false });
-  addBox(cx - 7, 4.8, cz + (faceSouth ? -9.55 : 9.55), 3, 2.4, 0.3, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.35, collide: false });
-  addBox(cx + 7, 4.8, cz + (faceSouth ? -9.55 : 9.55), 3, 2.4, 0.3, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.35, collide: false });
-  addBox(cx - 7, 1.8, cz + (faceSouth ? -9.55 : 9.55), 2.2, 1.8, 0.3, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.25, collide: false });
-  addBox(cx + 7, 1.8, cz + (faceSouth ? -9.55 : 9.55), 2.2, 1.8, 0.3, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.25, collide: false });
-  addBox(cx + 10, 10.0, cz + 3, 2.2, 4.0, 2.2, 0xffffff, { tex: texConcrete });
-  addBox(cx + 8, 2.5, cz + (faceSouth ? -9.6 : 9.6), 8, 4.8, 0.15, 0x111827, { collide: false });
+  addBox(cx - 11, 2.8, porchZ - dir * 1.5, 0.8, 4.6, 0.8, 0xe5e7eb);
+  addBox(cx + 11, 2.8, porchZ - dir * 1.5, 0.8, 4.6, 0.8, 0xe5e7eb);
+
+  addBox(cx - HW/2 - 0.05, 4.2, cz - 5, 0.3, 2.2, 2.5, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.45, collide: false });
+  addBox(cx - HW/2 - 0.05, 4.2, cz + 5, 0.3, 2.2, 2.5, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.45, collide: false });
+  addBox(cx + HW/2 + 0.05, 4.2, cz - 5, 0.3, 2.2, 2.5, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.45, collide: false });
+  addBox(cx + HW/2 + 0.05, 4.2, cz + 5, 0.3, 2.2, 2.5, 0x0ea5e9, { emissive: 0x0ea5e9, emissiveIntensity: 0.45, collide: false });
+  addBox(cx, 5.5, front, doorW + 0.1, 0.4, TH + 0.05, 0xff0000, { emissive: 0xff0000, emissiveIntensity: 0.7, collide: false });
+
+  const il = new THREE.PointLight(0xffaa55, 0.5, 14);
+  il.position.set(cx, 4, cz); scene.add(il);
+
+  // INTERIOR FURNITURE
+  addBox(cx, 1.0, cz, 3, 0.3, 2, 0xffffff, { tex: texWood, texRepeat: [2, 1] });
+  addBox(cx - 1.3, 0.5, cz - 0.8, 0.2, 1.0, 0.2, 0x1f2937);
+  addBox(cx + 1.3, 0.5, cz - 0.8, 0.2, 1.0, 0.2, 0x1f2937);
+  addBox(cx - 1.3, 0.5, cz + 0.8, 0.2, 1.0, 0.2, 0x1f2937);
+  addBox(cx + 1.3, 0.5, cz + 0.8, 0.2, 1.0, 0.2, 0x1f2937);
+  addBox(cx + 4, 0.3, cz + 2, 0.8, 0.6, 0.8, 0xffffff, { tex: texWood, texRepeat: [1, 1], rotY: 0.6 });
+  addBox(cx - 11, 2.5, back - dir * 1, 3, 5, 0.8, 0xffffff, { tex: texWood, texRepeat: [2, 3] });
+  for (let i = 0; i < 6; i++) {
+    const col = [0x7f1d1d, 0x1e40af, 0x166534, 0xfbbf24, 0x7c3aed, 0xdc2626][i];
+    addBox(cx - 12.3 + i * 0.45, 3.2, back - dir * 0.6, 0.35, 0.8, 0.3, col, { collide: false });
+  }
+  addBox(cx + HW/2 - 1.5, 1.5, cz - 3, 2.8, 3, 1.5, 0xffffff, { tex: texConcrete });
+  addBox(cx + HW/2 - 1.5, 0.8, cz - 3, 2, 1.2, 0.8, 0xff4500, { emissive: 0xff4500, emissiveIntensity: 0.9, collide: false });
+  const fireLight = new THREE.PointLight(0xff6622, 0.8, 10);
+  fireLight.position.set(cx + HW/2 - 1.5, 2, cz - 3); scene.add(fireLight);
+
+  for (let i = 0; i < 5; i++) {
+    const px = cx + (Math.random() - 0.5) * (HW - 4);
+    const pz = cz + (Math.random() - 0.5) * (HD - 4);
+    addBox(px, 0.12, pz, 0.6, 0.02, 0.8, 0xfef3c7, { rotY: Math.random() * Math.PI, collide: false });
+  }
+  addBox(cx + 2, 0.11, cz - 3, 2.2, 0.02, 1.8, 0x7f1d1d, { collide: false, emissive: 0x7f1d1d, emissiveIntensity: 0.2 });
+
+  // LOOT
+  spawnCoin(cx, cz, 100);
+  spawnCoin(cx + HW/2 - 3.5, cz - 3, 50);
+  spawnPickup('medkit', cx - 10, cz + 3);
+
+  addBox(cx + 10, HH + 3, cz + dir * 0.5, 2.2, 4.0, 2.2, 0xffffff, { tex: texConcrete });
 }
 
 function buildBus(cx, cz) {
@@ -421,7 +565,7 @@ function buildSign(cx, cz) {
   addBox(cx, 4.0, cz, 7.5, 2.0, 0.3, 0xef4444, { emissive: 0xef4444, emissiveIntensity: 0.35, collide: false });
 }
 
-// PLAYER (hidden body, FPS mode)
+// PLAYER
 let player;
 function buildPlayer() { player = { group: null, x: 0, z: 0, angle: 0, hp: CFG.PLAYER.maxHp, iframes: 0 }; }
 
@@ -520,7 +664,12 @@ function setupInput() {
     if (state.mode === 'playing') fireGun();
   });
   canvas.addEventListener('mouseup', e => { if (e.button === 0) input.mouse.down = false; });
-  document.addEventListener('pointerlockchange', () => { input.mouse.locked = (document.pointerLockElement === canvas); });
+  document.addEventListener('pointerlockchange', () => {
+    input.mouse.locked = (document.pointerLockElement === canvas);
+    const hint = document.getElementById('look-hint');
+    if (input.mouse.locked) hint.classList.add('hidden');
+    else if (state.mode === 'playing' || state.mode === 'lobby') hint.classList.remove('hidden');
+  });
   window.addEventListener('gamepadconnected', e => { input.gamepad = e.gamepad.index; });
   window.addEventListener('gamepaddisconnected', () => { input.gamepad = null; });
   ['up','down','left','right'].forEach(dir => {
@@ -591,7 +740,6 @@ function updatePlayer(dt) {
   const mag = Math.hypot(fwd, strafe);
   if (mag > 1) { fwd /= mag; strafe /= mag; }
   const sp = CFG.PLAYER.speed;
-  // Forward = (sin(yaw), cos(yaw)); Right (when looking +Z) = (-cos(yaw), sin(yaw))
   const dx = (Math.sin(fps.yaw) * fwd - Math.cos(fps.yaw) * strafe) * sp;
   const dz = (Math.cos(fps.yaw) * fwd + Math.sin(fps.yaw) * strafe) * sp;
   const out = collideCircleObstacles(player.x + dx, player.z + dz, CFG.PLAYER.radius);
@@ -686,7 +834,7 @@ function checkWaveClear() {
   }
 }
 
-// HEAL ITEMS
+// HEAL + COINS
 function trySpawnPickup(x, z, type) {
   if (type === 'boss') { spawnPickup('medkit', x, z); return; }
   const r = Math.random();
@@ -703,7 +851,19 @@ function spawnPickup(type, x, z) {
   const ch = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.55), cm); ch.position.y = 0.25; g.add(ch);
   const gl = new THREE.PointLight(type === 'medkit' ? 0xef4444 : 0xfca5a5, 0.8, 4); gl.position.y = 0.5; g.add(gl);
   g.position.set(x, 0.6, z); scene.add(g);
-  state.pickups.push({ group: g, x, z, type, bobPhase: Math.random() * Math.PI * 2, life: 25000 });
+  state.pickups.push({ group: g, x, z, type, bobPhase: Math.random() * Math.PI * 2, life: 60000 });
+}
+function spawnCoin(x, z, amount) {
+  const g = new THREE.Group();
+  const coinMat = new THREE.MeshLambertMaterial({ color: 0xfbbf24, emissive: 0xfbbf24, emissiveIntensity: 0.5 });
+  const stackCount = Math.max(1, Math.min(6, Math.round(amount / 25)));
+  for (let i = 0; i < stackCount; i++) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.12, 10), coinMat);
+    c.position.y = i * 0.14; c.castShadow = true; g.add(c);
+  }
+  const glow = new THREE.PointLight(0xfbbf24, 0.9, 4); glow.position.y = 0.5; g.add(glow);
+  g.position.set(x, 0.3, z); scene.add(g);
+  state.pickups.push({ group: g, x, z, type: 'coin', amount, bobPhase: Math.random() * Math.PI * 2, life: 120000 });
 }
 function updatePickups(dt) {
   for (let i = state.pickups.length - 1; i >= 0; i--) {
@@ -715,8 +875,15 @@ function updatePickups(dt) {
     if (p.life <= 0) { scene.remove(p.group); state.pickups.splice(i, 1); continue; }
     const dx = player.x - p.x, dz = player.z - p.z;
     if (Math.hypot(dx, dz) < 1.5) {
-      const cfg = CFG.HEAL[p.type];
-      if (state.heals[p.type] < cfg.maxStack) { state.heals[p.type]++; announce('+1 ' + p.type.toUpperCase()); scene.remove(p.group); state.pickups.splice(i, 1); updateHud(); }
+      if (p.type === 'coin') {
+        state.money += p.amount;
+        announce('+$' + p.amount);
+        scene.remove(p.group); state.pickups.splice(i, 1);
+        updateHud();
+      } else {
+        const cfg = CFG.HEAL[p.type];
+        if (state.heals[p.type] < cfg.maxStack) { state.heals[p.type]++; announce('+1 ' + p.type.toUpperCase()); scene.remove(p.group); state.pickups.splice(i, 1); updateHud(); }
+      }
     }
   }
 }
@@ -802,10 +969,25 @@ function cycleGun(d) {
 function enterLobby() {
   document.getElementById('start-overlay').classList.add('hidden');
   document.getElementById('over-overlay').classList.add('hidden');
-  const lob = document.getElementById('lobby-overlay');
-  lob.classList.remove('hidden'); state.mode = 'lobby';
-  let n = 3; document.getElementById('countdown-num').textContent = n;
-  const t = setInterval(() => { n--; if (n <= 0) { clearInterval(t); lob.classList.add('hidden'); state.mode = 'playing'; startWave(1); } else document.getElementById('countdown-num').textContent = n; }, 1000);
+  document.getElementById('lobby-overlay').classList.add('hidden');
+  const banner = document.getElementById('lobby-banner');
+  const numEl = banner.querySelector('.lb-num');
+  banner.classList.remove('hidden');
+  state.mode = 'lobby';
+  let n = CFG.WAVE.startSeconds;
+  numEl.textContent = n;
+  announce('EXPLORE! ' + n + ' SECONDS BEFORE ZOMBIES');
+  const tick = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      clearInterval(tick); banner.classList.add('hidden');
+      state.mode = 'playing'; startWave(1);
+    } else {
+      numEl.textContent = n;
+      if (n === 5) announce('ZOMBIES INCOMING IN 5');
+      if (n === 1) announce('GET READY!');
+    }
+  }, 1000);
 }
 function gameOver() {
   state.mode = 'over';
