@@ -140,10 +140,10 @@ const CFG = {
   MAP_SIZE: 130,
   PLAYER: { radius: 1.0, speed: 0.20, maxHp: 150, iframesMs: 400 },
   ZOMBIE: {
-    walker:  { hp: 40,  speed: 0.17, dmg: 10, hitCooldown: 500,  color: 0x4a8a4a, reward: 15,  scale: 1.0 },
-    runner:  { hp: 22,  speed: 0.19, dmg: 20, hitCooldown: 500,  color: 0xd97706, reward: 25,  scale: 0.85 },
-    tank:    { hp: 220, speed: 0.12, dmg: 80, hitCooldown: 900,  color: 0x7f1d1d, reward: 75,  scale: 1.35 },
-    boss:    { hp: 900, speed: 0.15, dmg: 35, hitCooldown: 2600, color: 0x3b0764, reward: 300, scale: 2.2 }
+    walker:  { hp: 40,  speed: 0.114, dmg: 10, hitCooldown: 500,  color: 0x4a8a4a, reward: 15,  scale: 1.0 },
+    runner:  { hp: 22,  speed: 0.127, dmg: 20, hitCooldown: 500,  color: 0xd97706, reward: 25,  scale: 0.85 },
+    tank:    { hp: 220, speed: 0.080, dmg: 80, hitCooldown: 900,  color: 0x7f1d1d, reward: 75,  scale: 1.35 },
+    boss:    { hp: 900, speed: 0.100, dmg: 35, hitCooldown: 2600, color: 0x3b0764, reward: 300, scale: 2.2 }
   },
   HEAL: {
     bandage: { amount: 28,  castMs: 700,  dropChance: 0.15, maxStack: 5 },
@@ -591,8 +591,9 @@ function updatePlayer(dt) {
   const mag = Math.hypot(fwd, strafe);
   if (mag > 1) { fwd /= mag; strafe /= mag; }
   const sp = CFG.PLAYER.speed;
-  const dx = (Math.sin(fps.yaw) * fwd + Math.cos(fps.yaw) * strafe) * sp;
-  const dz = (Math.cos(fps.yaw) * fwd - Math.sin(fps.yaw) * strafe) * sp;
+  // Forward = (sin(yaw), cos(yaw)); Right (when looking +Z) = (-cos(yaw), sin(yaw))
+  const dx = (Math.sin(fps.yaw) * fwd - Math.cos(fps.yaw) * strafe) * sp;
+  const dz = (Math.cos(fps.yaw) * fwd + Math.sin(fps.yaw) * strafe) * sp;
   const out = collideCircleObstacles(player.x + dx, player.z + dz, CFG.PLAYER.radius);
   player.x = out.x; player.z = out.z;
   player.angle = fps.yaw;
