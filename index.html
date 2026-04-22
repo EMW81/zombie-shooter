@@ -220,10 +220,10 @@ const CFG = {
     iframesMs: 400
   },
   ZOMBIE: {
-    walker:  { hp: 40,  speed: 0.114, dmg: 10, hitCooldown: 500,  color: 0x4a8a4a, reward: 15,  scale: 1.0 },
-    runner:  { hp: 22,  speed: 0.127, dmg: 20, hitCooldown: 500,  color: 0xd97706, reward: 25,  scale: 0.85 },
-    tank:    { hp: 220, speed: 0.080, dmg: 80, hitCooldown: 900,  color: 0x7f1d1d, reward: 75,  scale: 1.35 },
-    boss:    { hp: 900, speed: 0.100, dmg: 35, hitCooldown: 2600, color: 0x3b0764, reward: 300, scale: 2.2 }
+    walker:  { hp: 40,  speed: 0.0935, dmg: 10, hitCooldown: 500,  color: 0x4a8a4a, reward: 15,  scale: 1.0 },
+    runner:  { hp: 22,  speed: 0.1041, dmg: 20, hitCooldown: 500,  color: 0xd97706, reward: 25,  scale: 0.85 },
+    tank:    { hp: 220, speed: 0.0656, dmg: 80, hitCooldown: 900,  color: 0x7f1d1d, reward: 75,  scale: 1.35 },
+    boss:    { hp: 900, speed: 0.0820, dmg: 35, hitCooldown: 2600, color: 0x3b0764, reward: 300, scale: 2.2 }
   },
   HEAL: {
     bandage: { amount: 28,  castMs: 700,  dropChance: 0.15, maxStack: 5, key: 'E' },
@@ -236,11 +236,11 @@ const CFG = {
     startSeconds: 14
   },
   GUNS: [
-    { id:'pistol',  name:'PISTOL',       cost:0,    dmg:25,  fireRate:280, spread:0.02, bullets:1, speed:0.9,  pierce:0, color:0xffff00 },
-    { id:'shotgun', name:'SHOTGUN',      cost:250,  dmg:18,  fireRate:650, spread:0.20, bullets:6, speed:0.85, pierce:0, color:0xffa500 },
-    { id:'ar',      name:'ASSAULT RIFLE',cost:600,  dmg:22,  fireRate:100, spread:0.05, bullets:1, speed:1.1,  pierce:0, color:0xff3333 },
-    { id:'sniper',  name:'SNIPER',       cost:900,  dmg:140, fireRate:800, spread:0.005,bullets:1, speed:1.6,  pierce:2, color:0x33ccff },
-    { id:'minigun', name:'MINIGUN',      cost:2000, dmg:16,  fireRate:55,  spread:0.09, bullets:1, speed:1.3,  pierce:0, color:0xff00ff }
+    { id:'pistol',  name:'PISTOL',       cost:0,    dmg:25,  fireRate:280, spread:0.02, bullets:1, speed:1.8,  pierce:0, color:0xffff00 },
+    { id:'shotgun', name:'SHOTGUN',      cost:250,  dmg:18,  fireRate:650, spread:0.20, bullets:6, speed:1.7,  pierce:0, color:0xffa500 },
+    { id:'ar',      name:'ASSAULT RIFLE',cost:600,  dmg:22,  fireRate:100, spread:0.05, bullets:1, speed:2.2,  pierce:0, color:0xff3333 },
+    { id:'sniper',  name:'SNIPER',       cost:900,  dmg:140, fireRate:800, spread:0.005,bullets:1, speed:3.2,  pierce:2, color:0x33ccff },
+    { id:'minigun', name:'MINIGUN',      cost:2000, dmg:16,  fireRate:55,  spread:0.09, bullets:1, speed:2.6,  pierce:0, color:0xff00ff }
   ]
 };
 
@@ -274,6 +274,8 @@ const state = {
   bullets: [],
   zombies: [],
   pickups: [],
+  particles: [],
+  corpses: [],
   heals: { bandage: 2, medkit: 0 },
   healing: null,
   obstacles: [],
@@ -536,7 +538,6 @@ function buildMap() {
     buildArenaQuadrant(-1,  1);
     buildArenaQuadrant( 1, -1);
     buildArenaQuadrant(-1, -1);
-
     buildPlatform(-SIZE/2 + 22,  SIZE/2 - 34, 10, 10, 2.5, 0x374151);
     buildPlatform( SIZE/2 - 22,  SIZE/2 - 34, 10, 10, 2.5, 0x374151);
     buildPlatform(-SIZE/2 + 22, -SIZE/2 + 34, 10, 10, 2.5, 0x374151);
@@ -546,14 +547,10 @@ function buildMap() {
   buildCar(-14, -SIZE/2 + 28, 0x991b1b);
   buildCar( 14,  SIZE/2 - 28, 0x1e40af);
 
-  const barrelSpots = [
-    [-8, -18], [10, -10], [-4, 8], [6, 20], [-14, 14], [12, 2], [-20, -8], [18, -18]
-  ];
+  const barrelSpots = [[-8, -18], [10, -10], [-4, 8], [6, 20], [-14, 14], [12, 2], [-20, -8], [18, -18]];
   barrelSpots.forEach(([x, z]) => buildBarrel(x, z));
 
-  const crateSpots = [
-    [-26, -4], [26, 6], [-22, 22], [22, -22], [-34, 0], [34, 0], [0, -34], [0, 34]
-  ];
+  const crateSpots = [[-26, -4], [26, 6], [-22, 22], [22, -22], [-34, 0], [34, 0], [0, -34], [0, 34]];
   crateSpots.forEach(([x, z]) => buildCrate(x, z));
 
   buildSandbags(-16, -SIZE/2 + 34);
@@ -575,7 +572,6 @@ function buildMap() {
 
   buildSign(0, -SIZE/2 + 3);
 
-  // ATMOSPHERIC DETAILS
   const bloodSpots = [[-6, -4],[9, -12],[-14, 7],[18, 15],[-22, -20],[5, 22],[25, -6],[-30, 10]];
   bloodSpots.forEach(([x, z]) => {
     addBox(x, 0.025, z, 2 + Math.random()*1.5, 0.02, 1.6 + Math.random()*1.2, 0x7f1d1d, { collide: false, emissive: 0x7f1d1d, emissiveIntensity: 0.18, rotY: Math.random() * Math.PI });
@@ -633,14 +629,11 @@ function buildHouse(cx, cz, cw, cr, faceSouth) {
   const doorW = 5.5;
 
   addBox(cx, 0.05, cz, HW, 0.1, HD, 0xffffff, { tex: texWood, texRepeat: [8, 6], collide: false });
-
   addBox(cx, HH/2, back, HW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [6, 2] });
-
   const sideW = (HW - doorW) / 2;
   addBox(cx - (doorW/2 + sideW/2), HH/2, front, sideW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [3, 2] });
   addBox(cx + (doorW/2 + sideW/2), HH/2, front, sideW, HH, TH, 0xffffff, { tex: wallTex, texRepeat: [3, 2] });
   addBox(cx, HH - 0.75, front, doorW, 1.5, TH, 0xffffff, { tex: wallTex, texRepeat: [1, 1], collide: false });
-
   addBox(cx - HW/2, HH/2, cz, TH, HH, HD, 0xffffff, { tex: wallTex, texRepeat: [4, 2] });
   addBox(cx + HW/2, HH/2, cz, TH, HH, HD, 0xffffff, { tex: wallTex, texRepeat: [4, 2] });
 
@@ -670,21 +663,17 @@ function buildHouse(cx, cz, cw, cr, faceSouth) {
   il.position.set(cx, 4, cz); scene.add(il);
   mapLights.push(il);
 
-  // INTERIOR FURNITURE
   addBox(cx, 1.0, cz, 3, 0.3, 2, 0xffffff, { tex: texWood, texRepeat: [2, 1] });
   addBox(cx - 1.3, 0.5, cz - 0.8, 0.2, 1.0, 0.2, 0x1f2937);
   addBox(cx + 1.3, 0.5, cz - 0.8, 0.2, 1.0, 0.2, 0x1f2937);
   addBox(cx - 1.3, 0.5, cz + 0.8, 0.2, 1.0, 0.2, 0x1f2937);
   addBox(cx + 1.3, 0.5, cz + 0.8, 0.2, 1.0, 0.2, 0x1f2937);
-
   addBox(cx + 4, 0.3, cz + 2, 0.8, 0.6, 0.8, 0xffffff, { tex: texWood, texRepeat: [1, 1], rotY: 0.6 });
-
   addBox(cx - 11, 2.5, back + dir * 1, 3, 5, 0.8, 0xffffff, { tex: texWood, texRepeat: [2, 3] });
   for (let i = 0; i < 6; i++) {
     const col = [0x7f1d1d, 0x1e40af, 0x166534, 0xfbbf24, 0x7c3aed, 0xdc2626][i];
     addBox(cx - 12.3 + i * 0.45, 3.2, back + dir * 0.6, 0.35, 0.8, 0.3, col, { collide: false });
   }
-
   addBox(cx + HW/2 - 1.5, 1.5, cz - 3, 2.8, 3, 1.5, 0xffffff, { tex: texConcrete });
   addBox(cx + HW/2 - 1.5, 0.8, cz - 3, 2, 1.2, 0.8, 0xff4500, { emissive: 0xff4500, emissiveIntensity: 0.9, collide: false });
   const fireLight = new THREE.PointLight(0xff6622, 0.8, 10);
@@ -696,7 +685,6 @@ function buildHouse(cx, cz, cw, cr, faceSouth) {
     const pz = cz + (Math.random() - 0.5) * (HD - 4);
     addBox(px, 0.12, pz, 0.6, 0.02, 0.8, 0xfef3c7, { rotY: Math.random() * Math.PI, collide: false });
   }
-
   addBox(cx + 2, 0.11, cz - 3, 2.2, 0.02, 1.8, 0x7f1d1d, { collide: false, emissive: 0x7f1d1d, emissiveIntensity: 0.2 });
 
   spawnCoin(cx, cz, 100);
@@ -803,33 +791,18 @@ let player;
 function buildPlayer() {
   const group = new THREE.Group();
   const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6, 0.8), new THREE.MeshLambertMaterial({ color: 0x1d4ed8 }));
-  body.position.y = 1.8;
-  body.castShadow = true;
-  group.add(body);
+  body.position.y = 1.8; body.castShadow = true; group.add(body);
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshLambertMaterial({ color: 0xfbbf24 }));
-  head.position.y = 3.1;
-  head.castShadow = true;
-  group.add(head);
+  head.position.y = 3.1; head.castShadow = true; group.add(head);
   const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.4, 0.5), new THREE.MeshLambertMaterial({ color: 0x1f2937 }));
-  leg1.position.set(-0.3, 0.7, 0);
-  leg1.castShadow = true;
-  group.add(leg1);
+  leg1.position.set(-0.3, 0.7, 0); leg1.castShadow = true; group.add(leg1);
   const leg2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.4, 0.5), new THREE.MeshLambertMaterial({ color: 0x1f2937 }));
-  leg2.position.set(0.3, 0.7, 0);
-  leg2.castShadow = true;
-  group.add(leg2);
+  leg2.position.set(0.3, 0.7, 0); leg2.castShadow = true; group.add(leg2);
   const arm = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.2, 0.35), new THREE.MeshLambertMaterial({ color: 0xfbbf24 }));
-  arm.position.set(0.7, 2.0, 0.3);
-  arm.castShadow = true;
-  group.add(arm);
+  arm.position.set(0.7, 2.0, 0.3); arm.castShadow = true; group.add(arm);
   const gun = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 1.2), new THREE.MeshLambertMaterial({ color: 0x374151 }));
-  gun.position.set(0.85, 2.0, 0.8);
-  group.add(gun);
-  group.userData.body = body; group.userData.head = head;
-  group.userData.leg1 = leg1; group.userData.leg2 = leg2;
-  group.userData.arm = arm; group.userData.gun = gun;
+  gun.position.set(0.85, 2.0, 0.8); group.add(gun);
   scene.add(group);
-
   player = { group, x: 0, z: 0, angle: 0, hp: CFG.PLAYER.maxHp, iframes: 0, walkPhase: 0 };
 }
 
@@ -841,32 +814,34 @@ function spawnZombie(type) {
   const group = new THREE.Group();
   const bodyMat = new THREE.MeshLambertMaterial({ color: cfg.color });
   const body = new THREE.Mesh(new THREE.BoxGeometry(1.2 * cfg.scale, 1.6 * cfg.scale, 0.8 * cfg.scale), bodyMat);
-  body.position.y = 1.8 * cfg.scale;
-  body.castShadow = true;
-  group.add(body);
+  body.position.y = 1.8 * cfg.scale; body.castShadow = true; group.add(body);
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.9 * cfg.scale, 0.9 * cfg.scale, 0.9 * cfg.scale), new THREE.MeshLambertMaterial({ color: Math.floor(cfg.color * 0.7) & 0xffffff }));
-  head.position.y = 3.1 * cfg.scale;
-  head.castShadow = true;
-  group.add(head);
+  head.position.y = 3.1 * cfg.scale; head.castShadow = true; group.add(head);
+  // Glowing eyes — parented to head so they tilt with it on headshot
   const eye1 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-  eye1.position.set(-0.2 * cfg.scale, 3.2 * cfg.scale, 0.5 * cfg.scale);
-  group.add(eye1);
+  eye1.position.set(-0.2 * cfg.scale, 0.1 * cfg.scale, 0.46 * cfg.scale);
+  head.add(eye1);
   const eye2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.1), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-  eye2.position.set(0.2 * cfg.scale, 3.2 * cfg.scale, 0.5 * cfg.scale);
-  group.add(eye2);
+  eye2.position.set(0.2 * cfg.scale, 0.1 * cfg.scale, 0.46 * cfg.scale);
+  head.add(eye2);
   const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.5 * cfg.scale, 1.4 * cfg.scale, 0.5 * cfg.scale), new THREE.MeshLambertMaterial({ color: 0x374151 }));
   leg1.position.set(-0.3 * cfg.scale, 0.7 * cfg.scale, 0);
   leg1.castShadow = true; group.add(leg1);
   const leg2 = new THREE.Mesh(new THREE.BoxGeometry(0.5 * cfg.scale, 1.4 * cfg.scale, 0.5 * cfg.scale), new THREE.MeshLambertMaterial({ color: 0x374151 }));
   leg2.position.set(0.3 * cfg.scale, 0.7 * cfg.scale, 0);
   leg2.castShadow = true; group.add(leg2);
+  // Outstretched arms — some zombies stretch them out in front, some hang
+  const armsOut = type === 'runner' || type === 'boss' || Math.random() < 0.6;
+  const armX = armsOut ? -1.25 : -0.25;
+  const armZ = armsOut ? 0.9 * cfg.scale : 0.35 * cfg.scale;
+  const armY = armsOut ? 2.4 * cfg.scale : 2.0 * cfg.scale;
   const arm1 = new THREE.Mesh(new THREE.BoxGeometry(0.35 * cfg.scale, 1.2 * cfg.scale, 0.35 * cfg.scale), bodyMat);
-  arm1.position.set(-0.75 * cfg.scale, 2.2 * cfg.scale, 0.4 * cfg.scale);
-  arm1.rotation.x = -0.6;
+  arm1.position.set(-0.75 * cfg.scale, armY, armZ);
+  arm1.rotation.x = armX;
   arm1.castShadow = true; group.add(arm1);
   const arm2 = new THREE.Mesh(new THREE.BoxGeometry(0.35 * cfg.scale, 1.2 * cfg.scale, 0.35 * cfg.scale), bodyMat);
-  arm2.position.set(0.75 * cfg.scale, 2.2 * cfg.scale, 0.4 * cfg.scale);
-  arm2.rotation.x = -0.6;
+  arm2.position.set(0.75 * cfg.scale, armY, armZ);
+  arm2.rotation.x = armX;
   arm2.castShadow = true; group.add(arm2);
 
   let sx, sz, tries = 0;
@@ -882,11 +857,17 @@ function spawnZombie(type) {
 
   group.position.set(sx, 0, sz);
   scene.add(group);
+  // Per-zombie speed variation (±15%)
+  const speedMult = 0.85 + Math.random() * 0.30;
+  const actualSpeed = cfg.speed * speedMult;
+  const limping = type === 'tank' || speedMult < 0.95;
   state.zombies.push({
     group, x: sx, z: sz, hp: cfg.hp, maxHp: cfg.hp,
-    speed: cfg.speed, dmg: cfg.dmg, reward: cfg.reward, scale: cfg.scale,
+    speed: actualSpeed, dmg: cfg.dmg, reward: cfg.reward, scale: cfg.scale,
     hitCooldown: cfg.hitCooldown, nextHitAt: 0,
-    type, leg1, leg2, walkPhase: Math.random() * Math.PI * 2, hitFlash: 0
+    type, head, leg1, leg2, arm1, arm2, armsOut, limping,
+    walkPhase: Math.random() * Math.PI * 2, hitFlash: 0,
+    stunUntil: 0, headTilt: 0
   });
 }
 
@@ -898,7 +879,7 @@ function isSpawnClear(x, z) {
 }
 
 // ============================================================
-// BULLETS — fire along full 3D camera direction (yaw + pitch)
+// BULLETS
 // ============================================================
 function fireGun() {
   const now = performance.now();
@@ -915,7 +896,7 @@ function fireGun() {
     const dirX = Math.sin(yaw) * cp;
     const dirY = Math.sin(pitch);
     const dirZ = Math.cos(yaw) * cp;
-    const bulletGeo = new THREE.SphereGeometry(0.2, 6, 6);
+    const bulletGeo = new THREE.SphereGeometry(0.08, 6, 6);
     const bulletMat = new THREE.MeshBasicMaterial({ color: gun.color });
     const mesh = new THREE.Mesh(bulletGeo, bulletMat);
     const startX = player.x + dirX * 1.5;
@@ -1141,24 +1122,105 @@ function updatePlayer(dt) {
   camera.lookAt(player.x + lookX, fps.eyeHeight + lookY, player.z + lookZ);
 }
 
+// ============================================================
+// BLOOD SPLASH, CORPSES, PARTICLES
+// ============================================================
+function spawnBlood(x, y, z) {
+  for (let i = 0; i < 10; i++) {
+    const size = 0.07 + Math.random() * 0.12;
+    const bit = new THREE.Mesh(
+      new THREE.SphereGeometry(size, 4, 4),
+      new THREE.MeshBasicMaterial({ color: 0x8b0000, transparent: true, opacity: 1 })
+    );
+    bit.position.set(x, y, z);
+    const ang = Math.random() * Math.PI * 2;
+    const spread = 0.05 + Math.random() * 0.18;
+    const upward = 0.02 + Math.random() * 0.14;
+    state.particles.push({
+      mesh: bit,
+      vx: Math.cos(ang) * spread,
+      vy: upward,
+      vz: Math.sin(ang) * spread,
+      life: 400 + Math.random() * 200,
+      maxLife: 500
+    });
+    scene.add(bit);
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = state.particles.length - 1; i >= 0; i--) {
+    const p = state.particles[i];
+    p.mesh.position.x += p.vx;
+    p.mesh.position.y += p.vy;
+    p.mesh.position.z += p.vz;
+    p.vy -= 0.012;
+    p.life -= dt;
+    p.mesh.material.opacity = Math.max(0, p.life / p.maxLife);
+    if (p.life <= 0 || p.mesh.position.y < 0) {
+      scene.remove(p.mesh);
+      state.particles.splice(i, 1);
+    }
+  }
+}
+
+function updateCorpses(dt) {
+  const now = performance.now();
+  const FALL_MS = 450;
+  for (const c of state.corpses) {
+    const elapsed = now - c.deathStart;
+    if (elapsed < FALL_MS) {
+      const t = elapsed / FALL_MS;
+      const ease = t * t;
+      c.group.rotation.z = -Math.PI / 2 * ease * c.fallDir;
+      if (c.head) c.head.rotation.x = c.headTiltFinal;
+    } else {
+      c.group.rotation.z = -Math.PI / 2 * c.fallDir;
+      if (c.head) c.head.rotation.x = c.headTiltFinal;
+    }
+  }
+}
+
 function updateZombies(dt) {
+  const now = performance.now();
   for (let i = state.zombies.length - 1; i >= 0; i--) {
     const z = state.zombies[i];
     const dx = player.x - z.x;
     const dz = player.z - z.z;
     const dist = Math.hypot(dx, dz);
-    if (dist > 0.01) {
-      let mvx = (dx / dist) * z.speed;
-      let mvz = (dz / dist) * z.speed;
+    const stunned = now < z.stunUntil;
+
+    z.group.rotation.y = Math.atan2(dx, dz);
+
+    if (!stunned && dist > 0.01) {
+      const mvx = (dx / dist) * z.speed;
+      const mvz = (dz / dist) * z.speed;
       const nxt = collideCircleObstacles(z.x + mvx, z.z + mvz, 0.8 * z.scale);
       z.x = nxt.x; z.z = nxt.z;
+      z.walkPhase += 0.12 * z.speed * 4;
+      const s = Math.sin(z.walkPhase);
+      if (z.limping) {
+        z.leg1.rotation.x = s * 0.5;
+        z.leg2.rotation.x = -s * 0.15;
+        z.group.position.y = Math.abs(s) * 0.12;
+      } else {
+        z.leg1.rotation.x = s * 0.35;
+        z.leg2.rotation.x = -s * 0.35;
+        z.group.position.y = 0;
+      }
+    } else if (stunned) {
+      const shake = Math.sin(now * 0.06) * 0.08;
+      z.group.position.y = shake;
+      z.leg1.rotation.x *= 0.9;
+      z.leg2.rotation.x *= 0.9;
     }
-    z.group.position.set(z.x, 0, z.z);
-    z.group.rotation.y = Math.atan2(dx, dz);
-    z.walkPhase += 0.12 * z.speed * 4;
-    const s = Math.sin(z.walkPhase) * 0.35;
-    z.leg1.rotation.x = s;
-    z.leg2.rotation.x = -s;
+    z.group.position.x = z.x;
+    z.group.position.z = z.z;
+
+    if (z.headTilt > 0) {
+      z.headTilt -= dt;
+      z.head.rotation.x = -0.6 * Math.max(0, z.headTilt) / 300;
+    }
 
     if (z.hitFlash > 0) {
       z.hitFlash -= dt;
@@ -1166,7 +1228,6 @@ function updateZombies(dt) {
     }
 
     if (dist < 1.5 + 0.5 * z.scale) {
-      const now = performance.now();
       if (now >= (z.nextHitAt || 0) && player.iframes <= 0) {
         player.hp -= z.dmg;
         player.iframes = CFG.PLAYER.iframesMs;
@@ -1180,6 +1241,7 @@ function updateZombies(dt) {
 }
 
 function updateBullets(dt) {
+  const now = performance.now();
   for (let i = state.bullets.length - 1; i >= 0; i--) {
     const b = state.bullets[i];
     b.x += b.vx * dt * 0.12;
@@ -1189,40 +1251,72 @@ function updateBullets(dt) {
     b.life--;
 
     if (b.y > 0.2 && b.y < 8 && bulletHitsObstacle(b.x, b.z)) {
-      scene.remove(b.mesh); state.bullets.splice(i, 1); continue;
+      scene.remove(b.mesh);
+      state.bullets.splice(i, 1);
+      continue;
     }
-    if (b.y < 0.05) { scene.remove(b.mesh); state.bullets.splice(i, 1); continue; }
+
+    if (b.y < 0.05) {
+      scene.remove(b.mesh);
+      state.bullets.splice(i, 1);
+      continue;
+    }
+
     if (Math.abs(b.x) > CFG.MAP_SIZE/2 || Math.abs(b.z) > CFG.MAP_SIZE/2 || b.y > 50 || b.life <= 0) {
-      scene.remove(b.mesh); state.bullets.splice(i, 1); continue;
+      scene.remove(b.mesh);
+      state.bullets.splice(i, 1);
+      continue;
     }
 
     let removed = false;
-    if (b.y > 0.2 && b.y < 4.5) {
-      for (let j = state.zombies.length - 1; j >= 0; j--) {
-        const z = state.zombies[j];
-        if (b.hitIds.has(j)) continue;
-        const dx = b.x - z.x, dz = b.z - z.z;
-        if (Math.hypot(dx, dz) < 1.0 * z.scale) {
+    for (let j = state.zombies.length - 1; j >= 0; j--) {
+      const z = state.zombies[j];
+      if (b.hitIds.has(j)) continue;
+      const dx = b.x - z.x, dz = b.z - z.z;
+      const horizDist = Math.hypot(dx, dz);
+      const headY = 3.1 * z.scale;
+      const headR = 0.55 * z.scale;
+      const inHeadBand = b.y > (headY - headR) && b.y < (headY + headR);
+      const inBodyBand = b.y > 0.5 && b.y < 3.0 * z.scale;
+      const hitRadius = inHeadBand ? 0.55 * z.scale : 1.0 * z.scale;
+      if ((inBodyBand || inHeadBand) && horizDist < hitRadius) {
+        const isHeadshot = inHeadBand && horizDist < 0.55 * z.scale;
+        spawnBlood(b.x, b.y, b.z);
+        b.hitIds.add(j);
+        if (isHeadshot) {
+          z.hp = 0;
+          z.head.rotation.x = -1.1;
+          announce('HEADSHOT!');
+        } else {
           z.hp -= b.dmg;
           z.hitFlash = 200;
-          b.hitIds.add(j);
-          if (z.hp <= 0) {
-            trySpawnPickup(z.x, z.z, z.type);
-            scene.remove(z.group);
-            state.zombies.splice(j, 1);
-            state.money += z.reward;
-            state.kills++;
-            state.waveKills++;
-            updateHud();
-            checkWaveClear();
-          }
-          if (b.pierce > 0) { b.pierce--; }
-          else {
-            scene.remove(b.mesh);
-            state.bullets.splice(i, 1);
-            removed = true;
-            break;
-          }
+          z.stunUntil = now + 1000;
+          z.headTilt = 200;
+          z.head.rotation.x = -0.3;
+        }
+        if (z.hp <= 0) {
+          trySpawnPickup(z.x, z.z, z.type);
+          state.money += z.reward;
+          state.kills++;
+          state.waveKills++;
+          updateHud();
+          state.zombies.splice(j, 1);
+          state.corpses.push({
+            group: z.group,
+            deathStart: now,
+            fallDir: Math.random() < 0.5 ? 1 : -1,
+            headTiltFinal: isHeadshot ? -1.1 : -0.3,
+            head: z.head,
+            scale: z.scale
+          });
+          checkWaveClear();
+        }
+        if (b.pierce > 0) { b.pierce--; }
+        else {
+          scene.remove(b.mesh);
+          state.bullets.splice(i, 1);
+          removed = true;
+          break;
         }
       }
     }
@@ -1291,14 +1385,11 @@ function spawnPickup(type, x, z) {
   group.add(base);
   const crossMat = new THREE.MeshLambertMaterial({ color: crossColor, emissive: crossColor, emissiveIntensity: 0.5 });
   const cv = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.1, 0.15), crossMat);
-  cv.position.y = 0.25;
-  group.add(cv);
+  cv.position.y = 0.25; group.add(cv);
   const ch = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.55), crossMat);
-  ch.position.y = 0.25;
-  group.add(ch);
+  ch.position.y = 0.25; group.add(ch);
   const glow = new THREE.PointLight(type === 'medkit' ? 0xef4444 : 0xfca5a5, 0.8, 4);
-  glow.position.y = 0.5;
-  group.add(glow);
+  glow.position.y = 0.5; group.add(glow);
   group.position.set(x, 0.6, z);
   scene.add(group);
   state.pickups.push({ group, x, z, type, bobPhase: Math.random() * Math.PI * 2, life: 60000 });
@@ -1315,8 +1406,7 @@ function spawnCoin(x, z, amount) {
     group.add(c);
   }
   const glow = new THREE.PointLight(0xfbbf24, 0.9, 4);
-  glow.position.y = 0.5;
-  group.add(glow);
+  glow.position.y = 0.5; group.add(glow);
   group.position.set(x, 0.3, z);
   scene.add(group);
   state.pickups.push({ group, x, z, type: 'coin', amount, bobPhase: Math.random() * Math.PI * 2, life: 120000 });
@@ -1329,20 +1419,26 @@ function updatePickups(dt) {
     p.group.position.y = 0.6 + Math.sin(p.bobPhase) * 0.2;
     p.group.rotation.y += 0.03;
     p.life -= dt;
-    if (p.life <= 0) { scene.remove(p.group); state.pickups.splice(i, 1); continue; }
+    if (p.life <= 0) {
+      scene.remove(p.group);
+      state.pickups.splice(i, 1);
+      continue;
+    }
     const dx = player.x - p.x, dz = player.z - p.z;
     if (Math.hypot(dx, dz) < 1.5) {
       if (p.type === 'coin') {
         state.money += p.amount;
         announce('+$' + p.amount);
-        scene.remove(p.group); state.pickups.splice(i, 1);
+        scene.remove(p.group);
+        state.pickups.splice(i, 1);
         updateHud();
       } else {
         const cfg = CFG.HEAL[p.type];
         if (state.heals[p.type] < cfg.maxStack) {
           state.heals[p.type]++;
           announce('+1 ' + p.type.toUpperCase());
-          scene.remove(p.group); state.pickups.splice(i, 1);
+          scene.remove(p.group);
+          state.pickups.splice(i, 1);
           updateHud();
         }
       }
@@ -1377,7 +1473,10 @@ function updateHealing() {
 
 function updateHealBar() {
   let bar = document.getElementById('heal-bar-wrap');
-  if (!state.healing) { if (bar) bar.style.display = 'none'; return; }
+  if (!state.healing) {
+    if (bar) bar.style.display = 'none';
+    return;
+  }
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'heal-bar-wrap';
@@ -1428,16 +1527,13 @@ function renderShop() {
     if (owned) card.classList.add('owned');
     if (equipped) card.classList.add('equipped');
     if (!owned && state.money < g.cost) card.classList.add('locked');
-    card.innerHTML = `
-      <h3>${g.name}</h3>
-      <div class="gun-stat">Damage: ${g.dmg}</div>
-      <div class="gun-stat">Fire rate: ${Math.round(60000 / g.fireRate)}/min</div>
-      <div class="gun-stat">Bullets: ${g.bullets} &nbsp; Pierce: ${g.pierce}</div>
-      ${owned
-        ? `<div class="gun-status">${equipped ? 'EQUIPPED' : 'OWNED — CLICK TO EQUIP'}</div>`
-        : `<div class="gun-price">$${g.cost}</div>`
-      }
-    `;
+    card.innerHTML = '<h3>' + g.name + '</h3>' +
+      '<div class="gun-stat">Damage: ' + g.dmg + '</div>' +
+      '<div class="gun-stat">Fire rate: ' + Math.round(60000 / g.fireRate) + '/min</div>' +
+      '<div class="gun-stat">Bullets: ' + g.bullets + ' &nbsp; Pierce: ' + g.pierce + '</div>' +
+      (owned
+        ? '<div class="gun-status">' + (equipped ? 'EQUIPPED' : 'OWNED — CLICK TO EQUIP') + '</div>'
+        : '<div class="gun-price">$' + g.cost + '</div>');
     card.addEventListener('click', () => {
       if (owned) { state.currentGun = i; }
       else if (state.money >= g.cost) { state.money -= g.cost; state.ownedGuns.add(g.id); state.currentGun = i; }
@@ -1472,7 +1568,7 @@ function cycleGun(dir) {
 }
 
 // ============================================================
-// MAP SWAP — clear then rebuild
+// MAP SWAP
 // ============================================================
 function clearMap() {
   mapMeshes.forEach(m => scene.remove(m));
@@ -1484,6 +1580,10 @@ function clearMap() {
   state.obstacles = [];
   state.pickups.forEach(p => scene.remove(p.group));
   state.pickups = [];
+  state.corpses.forEach(c => scene.remove(c.group));
+  state.corpses = [];
+  state.particles.forEach(p => scene.remove(p.mesh));
+  state.particles = [];
 }
 
 function rebuildMap(mapKey) {
@@ -1533,7 +1633,6 @@ function gameOver() {
 }
 
 function resetGame() {
-  // Reset per-run state (but keep money, guns, heals across deaths)
   state.wave = 1; state.kills = 0; state.waveKills = 0;
   state.bullets.forEach(b => scene.remove(b.mesh));
   state.zombies.forEach(z => scene.remove(z.group));
@@ -1676,11 +1775,15 @@ function loop(ts) {
     updatePlayer(dt);
     updateZombies(dt);
     updateBullets(dt);
+    updateCorpses(dt);
+    updateParticles(dt);
     updatePickups(dt);
     updateHealing();
     spawnLogic(ts);
   } else if (state.mode === 'lobby' || state.mode === 'shop') {
     updatePlayer(dt);
+    updateCorpses(dt);
+    updateParticles(dt);
     updatePickups(dt);
   }
   renderer.render(scene, camera);
