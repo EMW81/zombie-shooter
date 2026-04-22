@@ -1,138 +1,166 @@
 # 🤝 HANDOFF — Kai's Zombie Shooter
 
-> **Purpose:** If Claude's chat resets, or someone else picks up this project, this one file brings them fully up to speed. Read this first.
+> **If you (Claude or human) are picking this up fresh, read this FIRST.** This file is the complete state of the project as of the last session.
 
-**Project owner:** Kai (10, first real project)
-**As of:** April 21, 2026
-**Current phase:** 0 → 1 (moving prototype to real project)
-
----
-
-## 📸 Current state, in one paragraph
-
-We have a working browser-based 3D zombie shooter prototype built inside a Claude chat widget using Three.js r128 + vanilla JavaScript + Web Audio. Core gameplay (WASD movement, mouse aim, shooting, zombie waves, money drops, gun shop with 5 guns, 3 zombie variants, Xbox controller, horror synth music, 3-second lobby, blocky Nuketown-style map) all functions. The prototype validates the fun. It is NOT production code — it's a single 2000+ line blob with no saves, no version control, no separation of concerns. We are transitioning to a standalone HTML project on GitHub Pages.
+**Project owner:** Kai (10, creative director) — GitHub: `EMW81` — email: `ericwilsonart@gmail.com`
+**Last updated:** April 22, 2026
+**Live commit:** `044bf0653e577675a3220ec2ac4f404ccf32a70e`
+**Live URL:** https://emw81.github.io/zombie-shooter/
+**Repo:** https://github.com/EMW81/zombie-shooter
 
 ---
 
-## 🎯 What Kai has explicitly asked for
+## 🎮 What the game is RIGHT NOW (as of commit 044bf065)
 
-From conversations on record:
+A browser-based 3D zombie shooter FPS. Single HTML file, ~92KB. Three.js r128. No build step on-site — the source lives beautified on disk, gets minified back down before push.
 
-1. **Zombies that walk toward the player and deal damage. Death at 0 HP.** ✅ Built
-2. **Multiple guns that cost more and do more damage.** ✅ Built (5 guns)
-3. **Zombies drop money, money buys guns.** ✅ Built
-4. **Xbox controller support.** ✅ Built (left stick, right stick, RT, Menu button)
-5. **A 20-second lobby before waves start.** ✅ Built — but Kai later reduced to 3 seconds.
-6. **Scary horror music, no vocals.** ✅ Built (synth drones, heartbeat, stings)
-7. **Roblox-style blocky graphics.** ✅ Built
-8. **Nuketown (Call of Duty) map as default.** ✅ Built
-9. **(Implicit) The game should work reliably.** ⚠️ Partial — keyboard focus bugs in chat widget
+### Modes (menu-selectable)
+- **REGULAR** — Survive 10 waves to WIN
+- **HARDCORE** — Faster zombies, witch curses, more chaos, beat wave 10 to TRULY BEAT THE GAME
+- **MARATHON** — Endless waves with localStorage high-score tracking
+- **CHAOS** (new!) — Random theme + random map size + 0–3 random disasters at game start
 
----
+### Themes (menu-selectable): CITY (Nuketown), FOREST (Dark Woods), DESERT (Wasteland), SNOW (Frozen)
 
-## 🔁 What's in flight / unresolved
+### Map sizes: SMALL (80×80), MEDIUM (130×130), BIG (180×180)
 
-- Keyboard focus in Claude's widget is unreliable across browsers. Flagged to Kai, patched twice, not fully solved. **Resolution plan: move out of widget (Phase 1).**
-- No save system. Every refresh = zero money. **Resolution plan: localStorage in Phase 1.**
-- Three.js r128 is pinned and old. Defer to Phase 3+.
+### Zombies (10 types)
+| Type | HP | DMG | Speed | Wave | Notes |
+|---|---|---|---|---|---|
+| Walker | 40 | 10 | .093 | 1+ | Basic |
+| Runner | 22 | 20 | .104 | 3+ | Fast, low HP |
+| Tank | 220 | 80 | .066 | 5+ | Slow bullet-sponge |
+| Boss | 1800 | 35 | .082 | every 5th | Shockwave slam every 9s, 40 dmg ring, screen shake |
+| Witch | 70 | curse | .07 | HC wave 3+ | Casts curse orbs → 2min slow/blurry/weak |
+| Ice | 55 | 14 | .087 | 2+ | Cyan blue, icy glow |
+| Magma | 85 | 28 | .095 | 4+ | Red-hot, emissive glow + red point light |
+| Ghost | 35 | 12 | .115 | 2+ | Transparent 45% opacity, fastest |
+| **Gunner** | 55 | 15 | .06 | **6+** | Stops at 12u, shoots red bullets every 1.5s, no melee |
 
----
+**All non-witch zombies now have Roblox-style heads:** taller blocky shape, pale greenish face (gunners have darker gray), white rectangular eyes with black pupils, dark open mouth. Witches keep their pointy-hat green-eyed look.
 
-## 📦 What exists, where
+### Weather / disasters (active during gameplay)
+- **Meteor shower** — confined to map, 2.5× cylinder size, 22-unit light range
+- **Tornadoes** — double-cone + 8 orbiting debris blocks, pulls player, 12 dmg
+- **Hurricanes** — 1.8× bigger tornado, 14 debris, 20 dmg
+- **Thunder storms** — dims ambient, random lightning flashes, WebAudio thunder rumble
 
-**Location:** All prototype code lives inside Claude conversation artifacts in the chat thread titled **"Kai's Zombie survival game"** (started April 21, 2026).
+### Guns (persist across deaths; money resets)
+Pistol ($0, 25 dmg), Shotgun ($250, 18×6 pellets), AR ($600, 22 dmg fast), Sniper ($900, 140 dmg pierce 2), Minigun ($2000, 16 dmg 55ms fire rate).
 
-**Not yet in a Git repo.** Not yet hosted. Not yet on disk.
-
-**Key conversation milestones:**
-1. Initial build — zombies, 5 guns, 2D top-down
-2. Scary music + Xbox controller + 20s lobby added
-3. Converted to 3D with Three.js (Roblox-style blocky characters)
-4. Nuketown-style map added
-5. Keyboard focus fixes attempted (multiple)
-6. On-screen WASD/shoot/shop buttons added as fallback
-7. Countdown reduced from 20s → 3s
-8. This handoff written
-
----
-
-## 🧱 The tech stack (current prototype)
-
-| Layer | Tech | Notes |
-|---|---|---|
-| Renderer | **Three.js r128** | Loaded from cdnjs CDN |
-| Game logic | **Vanilla JS** | No framework |
-| 2D HUD | **HTML/CSS** overlay on Canvas | Inline styles (to be refactored) |
-| Audio | **Web Audio API** | Synthesized, no audio files |
-| Input | **DOM events + Gamepad API** | Unified input layer lives in same big function right now |
-| Storage | **None** | Add localStorage in Phase 1 |
-| Host | **Claude visualize widget** | Moving to GitHub Pages in Phase 1 |
+### HUD / gameplay feel
+- HP 150 max, iframes 400ms on hit, bandage (28 HP, 5 max stack, .7s cast) + medkit (100 HP, 3 max stack, 2s cast)
+- 14-second lobby before wave 1 for scavenging
+- Pointer-lock FPS mode, WASD + mouse + Xbox controller + mobile d-pad all work
+- Zombies drop coins and sometimes heal items; boss drops rainbow coin ($500)
+- Muzzle flash, blood splash particles, HP bars on tough enemies, corpse ragdoll, headshots (1.3× dmg + stun)
+- Nighttime is notably darker now (city ambI 0.85, moonI 0.75; forest even darker)
 
 ---
 
-## 🧱 The tech stack (where we're going)
+## 🔜 OUTSTANDING — Kai's open requests (deferred on purpose)
 
-Same as above, plus:
+In the last session, Kai gave a HUGE wishlist. We did a chunk. These are still pending:
 
-- **GitHub** repo with Git version control
-- **GitHub Pages** auto-deploy
-- **Split file structure** per ARCHITECTURE.md
-- **localStorage** save system
-- **Optional later:** Vite build tool when we graduate to ES modules
+1. **Bridges** — walkable platforms connecting areas of the map
+2. **Two-story buildings** — second floor with interior stairs the player can climb
+3. **Round/organic objects** — replace boxy meshes with cylinders/spheres for realism
+4. **Skyscrapers** — very tall buildings in city maps (was planned for this session, ran out of tool calls at the insertion point)
+5. **More texture polish** — make sure everything has the right texture applied
+6. **More realistic/scarier zombies** — beyond the Roblox head change; think torn clothes, blood stains, maybe randomized limb positions
 
----
-
-## 🧠 Design decisions worth knowing
-
-1. **Blocky graphics are a style choice, not a limitation.** Keep them.
-2. **Solo-only game through Phase 5.** No multiplayer until very late.
-3. **Keyboard + Mouse + Xbox controller are all first-class citizens.** Every feature must work on all three.
-4. **No payments, ads, or accounts.** This is Kai's game for fun.
-5. **Horror atmosphere matters.** Don't bright-colorify it to look "kid friendly" — it's supposed to feel tense.
-6. **Iteration speed beats perfection.** Ship changes, playtest, repeat.
+**Pick up with skyscrapers first** — they were the specific piece we couldn't finish. Find the city theme block in `N()` (now minified to `D()`) and add four tall concrete buildings at the map corners with lit windows. Only if `t >= 130`.
 
 ---
 
-## 🛠️ For whoever is continuing (Claude or human)
+## 🧰 Build pipeline
 
-### The very next task
-Start Phase 1. See **ROADMAP.md** for exact first steps.
+Working copy is BEAUTIFIED on disk, MINIFIED before push.
 
-### Do not
-- ❌ Add a new gun, zombie, or map before Phase 1 is done. Tempting, but we'll regret it.
-- ❌ Switch engines to Unity/Unreal/Godot. Kai wants browser.
-- ❌ Add frameworks (React/Vue) for the game itself.
-- ❌ Delete the old prototype code before Phase 1 is proven working. It's our reference.
+```
+/home/claude/zombie-shooter/          ← git clone of the repo (pristine reference)
+/home/claude/game.html                 ← beautified file, THIS is what you edit (~3200 lines)
+/home/claude/extract_and_minify.js     ← extracts <script> → /tmp/big.js
+/home/claude/reassemble.js             ← puts /tmp/big.min.js back into HTML → /tmp/final.html
+/tmp/big.js                            ← extracted pre-minified script
+/tmp/big.min.js                        ← minified via terser
+/tmp/final.html                        ← final output ready to push
+/mnt/user-data/outputs/zombie-shooter.html  ← artifact version (localStorage stripped)
+```
 
-### Do
-- ✅ Read ARCHITECTURE.md and CODE-AUDIT.md before touching code.
-- ✅ Talk to Kai like he's 10 (because he is), but respect his design decisions — he's the director.
-- ✅ Explain trade-offs in plain English whenever making a technical choice.
-- ✅ Commit often with clear messages once we have Git.
+### Standard workflow for every change
+1. Edit `/home/claude/game.html` via `str_replace` (or `create_file` for net-new code)
+2. Run `cd /home/claude && node extract_and_minify.js && terser /tmp/big.js -c -m --toplevel -o /tmp/big.min.js`
+3. Syntax-check: `node -e "new Function(require('fs').readFileSync('/tmp/big.min.js','utf8'));console.log('OK')"`
+4. `node reassemble.js` → `/tmp/final.html`
+5. Strip localStorage for artifact version, write to `/mnt/user-data/outputs/zombie-shooter.html`
+6. `cat /tmp/final.html` → pass content to `github:create_or_update_file`
+7. `present_files` the artifact so Kai can play immediately
 
----
+### Tools installed
+- `js-beautify` (global at `/home/claude/.npm-global/bin/`)
+- `terser` (same path)
+- Node 20+
 
-## 📞 Communication style with Kai
-
-- **Short.** One idea per paragraph.
-- **Plain English.** No jargon unless you explain it.
-- **Show, don't just tell.** When possible, make the thing and let him try it.
-- **Ask before major changes.** "Want me to try X?" not "I did X."
-- **Celebrate wins.** He's 10 and this is his first project. Make it feel good.
-
----
-
-## 🗂️ Document index
-
-- `README.md` — Project overview
-- `MASTER-PLAN.md` — Vision + all phases
-- `ARCHITECTURE.md` — Tech stack + file structure + override decisions
-- `CODE-AUDIT.md` — Brutal review of the prototype
-- `HANDOFF.md` — You are here
-- `ROADMAP.md` — Exact next steps
+### Current file sizes (commit 044bf065)
+- Beautified: ~132KB, 3200+ lines
+- Minified script block: 73KB
+- Final HTML: 92KB (well within GitHub's file API limits)
 
 ---
 
-## 🪪 Credentials
+## 🔑 Key function name mappings (beautified → minified)
 
-Kai is the creative director. Claude is the studio. Decisions that affect *what the game is* go through Kai. Decisions about *how the game is built* go through Claude (with explanation).
+The beautified code uses readable names. After terser, they mangle. When editing the minified output for reference:
+- `addTor` → `Me` (tornado spawn)
+- `upMet` / `upTor` / `upStorm` → inline in main loop
+- `spawnZB` → `ge` (zombie bullet spawn)
+- `upZB` → inline function in main loop
+- Announce function → `ze` (minified) / `Le` (beautified at one point) / often aliased
+
+**Always edit the BEAUTIFIED file** (`/home/claude/game.html`). Never hand-edit the minified.
+
+---
+
+## 🗣️ How to talk to Kai
+
+- **He's 10.** Plain English, no jargon. If you use a technical term, explain it in one sentence.
+- **He's the director.** He says WHAT and HOW IT LOOKS/FEELS. You own HOW IT'S BUILT. Don't ask him to pick between implementation approaches — just pick one and go.
+- **Keep responses short.** One idea per paragraph. Celebrate wins briefly.
+- **Minimal bullet lists.** Only when genuinely list-like.
+- **He prefers in-chat artifacts** for immediate play (via `present_files`) alongside the GitHub push, because GitHub Pages has browser-cache lag.
+- **When you run out of tool calls mid-batch**, tell him exactly what's done on disk and what's left — he'll say "keep going" and you pick up.
+- **For huge batches (5+ features),** tell him up front: "I'll do the biggest ones this turn, the rest next turn." Don't try to cram.
+
+---
+
+## 🚫 Never
+
+- Never break the spawn pool math — keep cumulative probabilities < 1.0 in the else-chain
+- Never forget to clear new arrays in `Oe()` (map reset) — it'll leak meshes across games
+- Never push without syntax-checking minified output via `new Function()`
+- Never hand the user a markdown report about code changes — they want the game, not docs
+
+## ✅ Always
+
+- Always update state init (add new arrays/flags) at the top of the state object
+- Always add new zombie types to: CFG.ZOMBIE, spawn pool, construction block, movement logic (if non-standard), cleanup
+- Always wire new update functions into the main render loop
+- Always test with `new Function()` before pushing
+- Always follow the push with `present_files` of the artifact
+
+---
+
+## 📚 Other docs in this repo
+
+- `README.md` — user-facing project overview
+- `MASTER-PLAN.md` — long-term vision
+- `ARCHITECTURE.md` — tech stack decisions
+- `CODE-AUDIT.md` — early prototype audit (mostly historical now)
+- `ROADMAP.md` — phase plan (also mostly historical; we're past Phase 0)
+
+---
+
+## 🏁 One-line summary
+
+Kai's browser zombie FPS is live, playable, and feature-rich. Next session: finish skyscrapers + bridges + 2-story buildings. Pipeline works. Ship fast, celebrate wins.
