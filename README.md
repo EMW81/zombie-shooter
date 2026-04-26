@@ -1,9 +1,9 @@
-# 🧟 Kai's Zombie Shooter
+# 🧟 FINAL WAVE
 
 > **Client:** Kai (10 years old, lead designer & creative director)
 > **Studio:** Claude (senior dev + game studio)
-> **Status:** Prototype → Transitioning to Standalone Project
-> **Last updated:** April 21, 2026
+> **Status:** Live!
+> **Last updated:** April 26, 2026
 
 ---
 
@@ -34,6 +34,12 @@ A 3D browser zombie shooter set in a blocky Roblox-style **Nuketown** map. You s
 - 🟢 **Walker** — standard, balanced
 - 🟠 **Runner** — fast, low HP (wave 3+)
 - 🔴 **Tank** — slow, high HP, big money drop (wave 5+)
+- 👻 **Ghost** — semi-transparent (wave 2+)
+- ❄️ **Ice** — frosty, slow (wave 3+)
+- 🔥 **Magma** — glowing, hot damage (wave 4+)
+- 🧙 **Witch** — spell-caster, curses you (hardcore)
+- 🎯 **Gunner** — ranged shooter (wave 6+)
+- 🌈 **Boss** — rainbow giant w/ shockwave slam (every 5 waves)
 
 ## Tech stack
 
