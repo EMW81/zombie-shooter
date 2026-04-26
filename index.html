@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Zombie Shooter 3D</title>
+  <title>FINAL WAVE</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0 }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #05070c; font-family: 'Courier New', monospace; color: #fff; user-select: none; -webkit-user-select: none; touch-action: none }
@@ -40,7 +40,7 @@
     #dpad-up { top: 0; left: 56px } #dpad-down { bottom: 0; left: 56px } #dpad-left { left: 0; top: 56px } #dpad-right { right: 0; top: 56px }
     .overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(5, 7, 12, 0.95); z-index: 10; gap: 12px; padding: 20px; text-align: center; overflow-y: auto }
     .overlay.hidden { display: none }
-    .title-big { color: #ef4444; font-size: 28px; font-weight: bold; letter-spacing: 6px; text-shadow: 0 0 18px #ef4444 }
+    .title-big { color: #ef4444; font-size: 38px; font-weight: bold; letter-spacing: 8px; text-shadow: 0 0 22px #ef4444, 0 0 38px #7f1d1d }
     .subtitle { color: #6b7280; font-size: 11px; letter-spacing: 4px }
     .hint-text { color: #4b5563; font-size: 11px; line-height: 2.2; margin-top: 6px }
     .btn-primary { background: #4ade80; color: #000; border: none; padding: 14px 36px; border-radius: 8px; font-family: inherit; font-size: 14px; cursor: pointer; font-weight: bold; letter-spacing: 2px; margin-top: 8px; transition: transform 0.1s }
@@ -99,10 +99,10 @@
     <div id="hud-bottom"><div id="gun-info"><div id="gun-name">PISTOL</div><div id="gun-hint">WASD Move | Mouse Look | Click Shoot | [B] Shop | [E] Band | [Q] Med</div></div><div id="controls-wrap"><button class="ctl-btn" id="btn-bandage" style="background:rgba(252,165,165,0.15);border-color:rgba(252,165,165,0.5);color:#fca5a5;">BAND [E]</button><button class="ctl-btn" id="btn-medkit" style="background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.5);color:#fecaca;">MED [Q]</button><button class="ctl-btn shop" id="btn-shop">SHOP</button><button class="ctl-btn shoot" id="btn-shoot">SHOOT</button></div></div>
     <div id="dpad"><button class="dpad-btn" id="dpad-up">^</button><button class="dpad-btn" id="dpad-down">v</button><button class="dpad-btn" id="dpad-left">&lt;</button><button class="dpad-btn" id="dpad-right">&gt;</button></div>
     <div class="overlay" id="start-overlay">
-      <div class="title-big">ZOMBIE SHOOTER 3D</div>
+      <div class="title-big">FINAL WAVE</div>
       <div class="subtitle">SURVIVE THE HORDES</div>
       <div class="hint-text">14 SECONDS TO EXPLORE - LOOT HOUSES - GRAB COINS<br>WASD / Stick - Move &nbsp;|&nbsp; Mouse / Stick - Look<br>Click / RT - Shoot &nbsp;|&nbsp; [B] / Menu - Shop<br>[E] / X - Bandage &nbsp;|&nbsp; [Q] / Y - Medkit</div>
-      <div class="picker" id="map-picker"><div class="mp-title">CHOOSE SIZE</div><div class="mp-row"><button class="map-btn" data-map="small">SMALL<span class="mp-size">80 x 80</span></button><button class="map-btn selected" data-map="medium">MEDIUM<span class="mp-size">130 x 130</span></button><button class="map-btn" data-map="big">BIG<span class="mp-size">180 x 180</span></button></div></div>
+      <div class="picker" id="map-picker"><div class="mp-title">CHOOSE SIZE</div><div class="mp-row"><button class="map-btn" data-map="small">SMALL<span class="mp-size">128 x 128</span></button><button class="map-btn selected" data-map="medium">MEDIUM<span class="mp-size">208 x 208</span></button><button class="map-btn" data-map="big">BIG<span class="mp-size">288 x 288</span></button></div></div>
       <div class="picker" id="theme-picker"><div class="mp-title">CHOOSE THEME</div><div class="mp-row"><button class="theme-btn selected" data-theme="city">CITY<span class="tb-sub">NUKETOWN</span></button><button class="theme-btn" data-theme="forest">FOREST<span class="tb-sub">DARK WOODS</span></button><button class="theme-btn" data-theme="desert">DESERT<span class="tb-sub">WASTELAND</span></button><button class="theme-btn" data-theme="snow">SNOW<span class="tb-sub">FROZEN</span></button></div></div>
       <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;justify-content:center;"><button id="btn-hardcore">HARDCORE: OFF</button><button id="btn-marathon">MARATHON: OFF</button><button id="btn-chaos" style="background:rgba(168,85,247,0.15);border:2px solid rgba(168,85,247,0.5);color:#e9d5ff;padding:10px 22px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:bold;letter-spacing:3px;cursor:pointer;">CHAOS: OFF</button></div>
       <div style="color:#9ca3af;font-size:10px;letter-spacing:2px;margin-top:6px;max-width:480px;line-height:1.6;">REGULAR = beat wave 10 to WIN &nbsp;|&nbsp; HARDCORE = faster zombies, witch curses, beat wave 10 to TRULY BEAT THE GAME &nbsp;|&nbsp; MARATHON = endless waves, chase the high score &nbsp;|&nbsp; CHAOS = random theme + map + disasters</div><button class="btn-primary" id="btn-start">START GAME</button>
